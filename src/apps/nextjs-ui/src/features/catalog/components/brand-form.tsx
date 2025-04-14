@@ -11,64 +11,74 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/types/product';
+import { Brand } from '@/types/brand';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { createProductCommandSchema,updateProductCommandSchema } from '../schemas/productSchemas';
-
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp'
-];
+import { createBrandCommandSchema, updateBrandCommandSchema } from '../schemas/brandsSchemas';
+import { useRouter } from 'next/navigation';
+import { createBrand, updateBrand } from '../actions/brandsActions';
+import { useState } from 'react';
 
 export default function BrandForm({
   initialData,
   pageTitle,
   mode = 'create'
 }: {
-  initialData: Product | null;
+  initialData: Brand | null;
   pageTitle: string;
   mode?: 'create' | 'update';
 }) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const defaultValues = {
+    id: initialData?.id || '',
     name: initialData?.name || '',
-    description: initialData?.description || '',
-    price: initialData?.price || 0,
-    imageUrl: initialData?.imageUrl || '',
-    brand: initialData?.brand ? {
-      id: initialData.brand.id,
-      name: initialData.brand.name,
-      description: initialData.brand.description
-    } : undefined
+    description: initialData?.description || ''
   };
 
-  const schema = mode === 'create' ? createProductCommandSchema : updateProductCommandSchema;
+  const schema = mode === 'create' ? createBrandCommandSchema : updateBrandCommandSchema;
   
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof schema>) {
-    if (mode === 'create') {
-      // Handle create logic
-      console.log('Creating product:', values);
-    } else {
-      // Handle update logic
-      console.log('Updating product:', values);
+  async function onSubmit(values: z.infer<typeof schema>) {
+    if (isSubmitting) return; // Prevent double submission
+    
+    console.log('Form submission started:', { mode, values });
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      if (mode === 'create') {
+        await createBrand(values);
+      } 
+      else
+      {
+        if (!initialData?.id) {
+          throw new Error('Brand ID is missing');
+        }
+        console.log('Updating brand:', { id: initialData.id, values });
+        await updateBrand(initialData.id, {
+          name: values.name,
+          description: values.description,
+          id: initialData.id
+        });
+      }
+      
+      console.log('Form submission successful');
+      router.refresh();
+      router.push('/dashboard/catalog/brands');
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save brand');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -82,16 +92,20 @@ export default function BrandForm({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-
+            {error && (
+              <div className="text-sm text-red-500 dark:text-red-400">
+                {error}
+              </div>
+            )}
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <FormField
                 control={form.control}
                 name='name'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Name</FormLabel>
+                    <FormLabel>Brand Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter product name' {...field} />
+                      <Input placeholder='Enter brand name' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,17 +120,18 @@ export default function BrandForm({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder='Enter product description'
+                      placeholder='Enter brand description'
                       className='resize-none'
                       {...field}
+                      value={field.value || ''}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type='submit'>
-              {mode === 'create' ? 'Create Brand' : 'Update Brand'}
+            <Button type='submit' disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Brand' : 'Update Brand'}
             </Button>
           </form>
         </Form>

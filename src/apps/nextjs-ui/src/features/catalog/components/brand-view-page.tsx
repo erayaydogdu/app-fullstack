@@ -9,20 +9,30 @@ type TBrandViewPageProps = {
 export default async function BrandViewPage({
   brandId
 }: TBrandViewPageProps) {
-  let product = null;
+  let brand = null;
   let pageTitle = 'Create New Brand';
   let mode: 'create' | 'update' = 'create';
 
-  if (!brandId) {
-    const brand = await getBrand(brandId);
-    
-    if (!product) {
+  if (brandId && brandId !== 'create') {
+    try {
+      // Since getBrand is a server action, we await it here
+      brand = await getBrand(brandId);
+      if (!brand) {
+        notFound();
+      }
+      pageTitle = `Edit Brand: ${brand.name}`;
+      mode = 'update';
+    } catch (error) {
+      console.error('Error fetching brand:', error);
       notFound();
     }
-
-    pageTitle = `Edit Brand: ${brand.name}`;
-    mode = 'update';
   }
 
-  return <BrandForm initialData={product} pageTitle={pageTitle} mode={mode} />;
+  return (
+    <BrandForm 
+      initialData={brand} 
+      pageTitle={pageTitle} 
+      mode={mode} 
+    />
+  );
 }

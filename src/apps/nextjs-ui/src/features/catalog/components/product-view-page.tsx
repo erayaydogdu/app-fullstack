@@ -13,16 +13,18 @@ export default async function ProductViewPage({
   let pageTitle = 'Create New Product';
   let mode: 'create' | 'update' = 'create';
 
-  if (!productId) {
-    const product = await getProduct(productId);
-    
-    if (!product) {
-      notFound();
+  if (productId && productId !== 'create') {
+      try {
+        const product = await getProduct(productId);
+        if (!product) {
+          notFound();
+        }
+        pageTitle = `Edit Product: ${product.name}`;
+        mode = 'update';
+      } catch (error) {
+        notFound();
+      }
     }
-
-    pageTitle = `Edit Product: ${product.name}`;
-    mode = 'update';
-  }
 
   return <ProductForm initialData={product} pageTitle={pageTitle} mode={mode} />;
 }

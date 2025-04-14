@@ -4,19 +4,15 @@ import { Suspense } from 'react';
 import BrandViewPage from '@/features/catalog/components/brand-view-page';
 
 export const metadata = {
-  title: 'Dashboard : Edit Brand'
+  title: 'Dashboard : Create Brand'
 };
 
-type PageProps = { params: Promise<{ brandId: string }> };
-
-
-export default async function Page(props: PageProps) {
-  const params = await props.params;
+export default async function Page() {
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
-          <BrandViewPage brandId={params.brandId} />
+          <BrandViewPage brandId="create" />
         </Suspense>
       </div>
     </PageContainer>

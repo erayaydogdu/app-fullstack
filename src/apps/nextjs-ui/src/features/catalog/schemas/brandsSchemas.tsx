@@ -1,24 +1,24 @@
 import { z } from "zod";
 
 export const createBrandCommandSchema = z.object({
-  name: z.string().default("Sample Brand"),
-  description: z.string().default("Descriptive Description"),
+  name: z.string(),
+  description: z.string().nullable(),
 });
 
 export const createBrandResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
 });
 
 export const brandResponseSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
 });
 
 export const updateBrandCommandSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
 });
 
 export const searchBrandsCommandSchema = z.object({

@@ -2,13 +2,16 @@
 import { getAccessToken } from "@/lib/api";
 import { z } from "zod";
 import { brandResponseSchema, updateBrandCommandSchema,
+  createBrandCommandSchema,
   createBrandResponseSchema,
   searchBrandsCommandSchema,
   brandResponsePagedListSchema
  } from "../schemas/brandsSchemas";
 
+ const apiUrl = process.env.API_URL;
+
  export async function getBrand(id: string) {
-  const apiUrl = process.env.API_URL;
+  const bearerToken = await getAccessToken();
   if (!apiUrl) {
     throw new Error("API_URL environment variable is not defined");
   }
@@ -18,7 +21,7 @@ import { brandResponseSchema, updateBrandCommandSchema,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${await getAccessToken()}`,
+        "Authorization": `Bearer ${bearerToken}`,
       },
     });
 
@@ -54,7 +57,6 @@ export async function updateBrand(
   id: string,
   data: z.infer<typeof updateBrandCommandSchema>
 ) {
-  const apiUrl = process.env.API_URL;
   if (!apiUrl) {
     throw new Error("API_URL environment variable is not defined");
   }
@@ -64,13 +66,13 @@ export async function updateBrand(
   if (!result.success) {
     throw new Error(result.error.errors[0].message);
   }
-
+  const bearerToken = await getAccessToken();
   try {
     const response = await fetch(`${apiUrl}/api/v1/catalog/brands/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${await getAccessToken()}`,
+        "Authorization": `Bearer ${bearerToken}`,
       },
       body: JSON.stringify(result.data),
     });
@@ -104,16 +106,16 @@ export async function updateBrand(
 }
 
 export async function deleteBrand(id: string) {
-  const apiUrl = process.env.API_URL;
+  
   if (!apiUrl) {
     throw new Error("API_URL environment variable is not defined");
   }
-
+  const bearerToken = await getAccessToken();
   try {
     const response = await fetch(`${apiUrl}/api/v1/catalog/brands/${id}`, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${await getAccessToken()}`,
+        "Authorization": `Bearer ${bearerToken}`,
       },
       });
 
@@ -140,8 +142,8 @@ export async function deleteBrand(id: string) {
 export async function searchBrands(
   data: z.infer<typeof searchBrandsCommandSchema>
 ) {
-  const bearerToken = await getAccessToken();
-  const apiUrl = process.env.API_URL;
+  
+
   if (!apiUrl) {
     throw new Error("API_URL environment variable is not defined");
   }
@@ -151,7 +153,7 @@ export async function searchBrands(
   if (!result.success) {
     throw new Error(result.error.errors[0].message);
   }
-
+  const bearerToken = await getAccessToken();
   try {
     const response = await fetch(`${apiUrl}/api/v1/catalog/brands/search`, {
       method: "POST",
@@ -186,6 +188,58 @@ export async function searchBrands(
     }
 
     console.error("Search brands error:", error);
+    throw new Error(errorMessage);
+  }
+}
+
+export async function createBrand(
+  data: z.infer<typeof createBrandCommandSchema>
+) {
+
+  if (!apiUrl) {
+    throw new Error("BACKEND_URL environment variable is not defined");
+  }
+
+  // Validate the input data
+  const result = createBrandCommandSchema.safeParse(data);
+  if (!result.success) {
+    throw new Error(result.error.errors[0].message);
+  }
+  const bearerToken = await getAccessToken();
+  try {
+    const response = await fetch(`${apiUrl}/api/v1/catalog/brands`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${bearerToken}`
+      },
+      body: JSON.stringify(result.data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create brand");
+    }
+
+    const responseData = await response.json();
+
+    // Validate the response data
+    const parsedResponse = createBrandResponseSchema.safeParse(responseData);
+    if (!parsedResponse.success) {
+      throw new Error(parsedResponse.error.errors[0].message);
+    }
+
+    return parsedResponse.data;
+  } catch (error: any) {
+    let errorMessage = "An unexpected error occurred";
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === "string") {
+      errorMessage = error;
+    }
+
+    console.error("Create brand error:", error);
     throw new Error(errorMessage);
   }
 }

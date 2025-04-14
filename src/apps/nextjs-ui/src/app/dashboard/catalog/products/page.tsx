@@ -36,7 +36,7 @@ export default async function Page(props: pageProps) {
             description='Manage products (Server side table functionalities.)'
           />
           <Link
-            href='/dashboard/catalog/products/new'
+            href='/dashboard/catalog/products/create'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Add New
