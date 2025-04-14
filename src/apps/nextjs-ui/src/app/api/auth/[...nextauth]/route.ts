@@ -143,7 +143,7 @@ export const authOptions: AuthOptions = {
         imageUrl: token.imageUrl,
       };
       // Also pass the access token and any error flags to the session
-      session.accessToken = token.accessToken;
+      session.user.accessToken = token.accessToken;
       session.error = token.error; // Propagate error state (e.g., "RefreshAccessTokenError")
 
       // console.log("Session Callback - Output session:", session);

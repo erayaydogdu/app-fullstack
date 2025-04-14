@@ -5,7 +5,7 @@ import { ProductTable } from './product-tables';
 import { columns } from './product-tables/columns';
 import { searchProductsCommandSchema } from '../schemas/productSchemas';
 
-export default async function ProductListingPage({}: ProductPagedListing) {
+export default async function ProductListingPage() {
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');

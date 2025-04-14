@@ -6,4 +6,5 @@ public sealed record UpdateProductCommand(
     string? Name,
     decimal Price,
     string? Description = null,
+    string? ImageUrl = null,
     Guid? BrandId = null) : IRequest<UpdateProductResponse>;

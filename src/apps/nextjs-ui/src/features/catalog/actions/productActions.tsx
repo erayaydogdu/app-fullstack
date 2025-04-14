@@ -1,4 +1,5 @@
 'use server'
+import { getAccessToken } from "@/lib/api";
 import { z } from "zod";
 import { createProductCommandSchema, createProductResponseSchema,
     productResponseSchema,
@@ -26,6 +27,7 @@ export async function createProduct(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${await getAccessToken()}`,
         },
         body: JSON.stringify(result.data),
       });
@@ -69,6 +71,7 @@ export async function createProduct(
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${await getAccessToken()}`,
         },
       });
   
@@ -120,6 +123,7 @@ export async function createProduct(
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${await getAccessToken()}`,
         },
         body: JSON.stringify(result.data),
       });
@@ -161,6 +165,9 @@ export async function createProduct(
     try {
       const response = await fetch(`${apiUrl}/api/v1/catalog/products/${id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${await getAccessToken()}`,
+        },
       });
   
       if (!response.ok) {
@@ -202,6 +209,7 @@ export async function createProduct(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${await getAccessToken()}`,
         },
         body: JSON.stringify(result.data),
       });

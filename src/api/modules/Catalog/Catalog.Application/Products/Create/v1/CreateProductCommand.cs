@@ -6,4 +6,5 @@ public sealed record CreateProductCommand(
     [property: DefaultValue("Sample Product")] string? Name,
     [property: DefaultValue(10)] decimal Price,
     [property: DefaultValue("Descriptive Description")] string? Description = null,
+    [property: DefaultValue("Image Url")] string? ImageUrl = null,
     [property: DefaultValue(null)] Guid? BrandId = null) : IRequest<CreateProductResponse>;

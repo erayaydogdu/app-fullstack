@@ -22,10 +22,11 @@ internal sealed class CatalogDbInitializer(
         const string Name = "Keychron V6 QMK Custom Wired Mechanical Keyboard";
         const string Description = "A full-size layout QMK/VIA custom mechanical keyboard";
         const decimal Price = 79;
+        const string ImageUrl = "https://www.keychron.co.nl/cdn/shop/products/Keychron-V6-QMK-VIA-custom-mechanical-keyboard-100-percent-layout-hot-swappable-PBT-keycaps-Keychron-K-Pro-switch-red-ISO-German-layout.jpg?v=1707488650&width=500";
         Guid? BrandId = null;
         if (await context.Products.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
         {
-            var product = Product.Create(Name, Description, Price, BrandId);
+            var product = Product.Create(Name, Description, Price, BrandId,ImageUrl);
             await context.Products.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);

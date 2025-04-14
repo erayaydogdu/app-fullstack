@@ -114,6 +114,10 @@ namespace FSH.Starter.WebApi.Migrations.PostgreSQL.Catalog
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+                    
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 

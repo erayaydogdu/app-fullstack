@@ -5,7 +5,7 @@ import { BrandTable } from './brand-tables';
 import { columns } from './brand-tables/columns';
 import { searchBrandsCommandSchema } from '../schemas/brandsSchemas';
 
-export default async function BrandListingPage({}: BrandPagedListing) {
+export default async function BrandListingPage() {
   // Showcasing the use of search params cache in nested RSCs
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('name');

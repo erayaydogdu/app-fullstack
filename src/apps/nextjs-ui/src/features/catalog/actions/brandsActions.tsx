@@ -1,4 +1,5 @@
 'use server'
+import { getAccessToken } from "@/lib/api";
 import { z } from "zod";
 import { brandResponseSchema, updateBrandCommandSchema,
   createBrandResponseSchema,
@@ -17,6 +18,7 @@ import { brandResponseSchema, updateBrandCommandSchema,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${await getAccessToken()}`,
       },
     });
 
@@ -68,6 +70,7 @@ export async function updateBrand(
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${await getAccessToken()}`,
       },
       body: JSON.stringify(result.data),
     });
@@ -109,7 +112,10 @@ export async function deleteBrand(id: string) {
   try {
     const response = await fetch(`${apiUrl}/api/v1/catalog/brands/${id}`, {
       method: "DELETE",
-    });
+      headers: {
+        "Authorization": `Bearer ${await getAccessToken()}`,
+      },
+      });
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -134,6 +140,7 @@ export async function deleteBrand(id: string) {
 export async function searchBrands(
   data: z.infer<typeof searchBrandsCommandSchema>
 ) {
+  const bearerToken = await getAccessToken();
   const apiUrl = process.env.API_URL;
   if (!apiUrl) {
     throw new Error("API_URL environment variable is not defined");
@@ -150,6 +157,7 @@ export async function searchBrands(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${bearerToken}`,
       },
       body: JSON.stringify(result.data),
     });
