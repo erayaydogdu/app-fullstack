@@ -32,28 +32,24 @@ export function SignInForm({
 
         try {
             // TODO: Implement dynamic tenant handling if needed
-            const tenant = "root"; // Hardcoded tenant for now
+            const tenant = "root"; 
 
             const result = await signIn('credentials', {
                 email,
                 password,
-                tenant: tenant, // Pass tenant to authorize callback
-                redirect: false, // Prevent default redirect, handle manually
+                tenant: tenant, 
+                redirect: false, 
             });
 
-            setIsLoading(false); // Reset loading state after signIn attempt
+            setIsLoading(false); 
 
             if (result?.error) {
                 console.error("Sign-in error:", result.error);
-                // Provide more specific errors if possible based on result.error
                 setError('Invalid email, password, or organisation.');
             } else if (result?.ok) {
-                // Sign-in was successful
                 console.log("Sign-in successful, redirecting...");
-                // Use router.push for client-side navigation without full page reload
                 router.push('/dashboard');
             } else {
-                // Handle unexpected cases where result is not ok and has no error
                  setError('An unexpected error occurred during sign in.');
             }
         } catch (err) {

@@ -1,22 +1,22 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { Product } from '@/constants/data';
+import { Product } from '@/types/product';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { CheckCircle2, Text, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { CellAction } from './cell-action';
-import { CATEGORY_OPTIONS } from './options';
+import { BRAND_OPTIONS } from './options';
 
 export const columns: ColumnDef<Product>[] = [
   {
-    accessorKey: 'photo_url',
+    accessorKey: 'imageUrl',
     header: 'Image',
     cell: ({ row }) => {
       return (
         <div className='relative aspect-square'>
           <Image
-            src={row.getValue('photo_url')}
+            src={row.getValue('imageUrl')}
             alt={row.getValue('name')}
             fill
             className='rounded-lg'
@@ -41,13 +41,13 @@ export const columns: ColumnDef<Product>[] = [
     enableColumnFilter: true
   },
   {
-    id: 'category',
-    accessorKey: 'category',
+    id: 'brand',
+    accessorKey: 'brand',
     header: ({ column }: { column: Column<Product, unknown> }) => (
-      <DataTableColumnHeader column={column} title='Category' />
+      <DataTableColumnHeader column={column} title='Brand' />
     ),
     cell: ({ cell }) => {
-      const status = cell.getValue<Product['category']>();
+      const status = cell.getValue<Product['brand']>()?.name ? 'active' : 'inactive';
       const Icon = status === 'active' ? CheckCircle2 : XCircle;
 
       return (
@@ -59,9 +59,9 @@ export const columns: ColumnDef<Product>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      label: 'categories',
+      label: 'brands',
       variant: 'multiSelect',
-      options: CATEGORY_OPTIONS
+      options: BRAND_OPTIONS
     }
   },
   {

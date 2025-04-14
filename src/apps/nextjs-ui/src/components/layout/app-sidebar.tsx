@@ -46,16 +46,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
 import { OrgSwitcher } from '../org-switcher';
+
 export const company = {
-  name: 'Acme Inc',
+  name: 'The App',
   logo: IconPhotoUp,
   plan: 'Enterprise'
 };
 
 const tenants = [
-  { id: '1', name: 'Acme Inc' },
-  { id: '2', name: 'Beta Corp' },
-  { id: '3', name: 'Gamma Ltd' }
+  { id: 'acme-inc', name: 'acme-inc' }
 ];
 
 export default function AppSidebar() {

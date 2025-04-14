@@ -16,6 +16,16 @@ interface CustomUser extends User {
 // Correctly export the type
 export type { CustomUser };
 
+// Define a type for refresh token errors
+export type RefreshTokenError = {
+  error: string;
+  message?: string;
+};
+// Define a type for the decoded user details (without the raw tokens)
+type DecodedUserDetails = Omit<CustomUser, 'accessToken' | 'refreshToken'> & {
+  accessTokenExpires: number;
+};
+
 // Helper function to decode JWT payload (basic base64 decoding)
 // Note: For production, consider using a robust library like 'jose' or 'jsonwebtoken'
 // if you need signature verification or more complex handling.
@@ -39,37 +49,15 @@ function decodeJwtPayload(token: string): any | null {
   }
 }
 
-export async function authenticate(email: string, password: string, tenant: string): Promise<CustomUser | null> {
-  const apiUrl = process.env.API_URL || 'http://localhost:7000';
-  // Use provided tenant or default to 'root'
-  const tenantId = tenant || 'root';
 
+// This function now returns only the decoded details, not the full CustomUser
+function GetUserFromTokenResponse(response : string): DecodedUserDetails | null {
   try {
-    const response = await fetch(`${apiUrl}/api/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'tenant': tenantId
-      },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Authentication failed:", data?.message || response.statusText);
-      return null; // Return null on failure as expected by authorize
-    }
-
-    const accessToken = data.token;
-    const refreshToken = data.refreshToken;
-    const payload = decodeJwtPayload(accessToken);
-
+    const payload = decodeJwtPayload(response);
     if (!payload) {
       console.error("Failed to decode token payload");
       return null;
     }
-
     // Extract claims based on the provided structure
     const userId = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     const userEmail = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
@@ -85,19 +73,21 @@ export async function authenticate(email: string, password: string, tenant: stri
         return null;
     }
 
-    const user: CustomUser = {
+    // Create a user details object containing only the decoded details.
+    // The actual tokens will be added by the calling function (authenticate or refreshAccessToken).
+    const userDetails: DecodedUserDetails = {
       id: userId,
       email: userEmail,
       name: fullName || userEmail,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      // accessToken: response, // Removed: Incorrectly assigned access token string
+      // refreshToken: response, // Removed: Incorrectly assigned access token string
       accessTokenExpires: expiresAt,
       fullName: fullName,
       tenant: tenantClaim, // Assign the extracted tenant claim
       imageUrl: imageUrl,
     };
 
-    return user;
+    return userDetails;
 
   } catch (error) {
     console.error("Error during authentication request:", error);
@@ -105,14 +95,77 @@ export async function authenticate(email: string, password: string, tenant: stri
   }
 }
 
-// Modify refreshAccessToken to accept the token object (JWT)
-export async function refreshAccessToken(token: JWT): Promise<JWT> {
-  try {
-    const apiUrl = process.env.API_URL || 'http://localhost:7000';
-    // Get tenant from the existing token, fallback to env var or 'root'
-    const tenantId = token.tenant as string || process.env.TENANT_ID || 'root';
+export async function authenticate(email: string, password: string, tenant: string): Promise<CustomUser | null> {
+  const apiUrl = process.env.API_URL || 'http://localhost:5000';
+  // Use provided tenant or default to 'root'
+  const tenantId = tenant || 'root';
 
-    if (!token.refreshToken) {
+  try {
+    console.log(`[Authenticate] Attempting to fetch: ${apiUrl}/api/token`); // Log before fetch
+    const response = await fetch(`${apiUrl}/api/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'tenant': tenantId
+      },
+      body: JSON.stringify({ email, password })
+    });
+    console.log(`[Authenticate] Fetch completed. Status: ${response.status}, OK: ${response.ok}`); // Log after fetch
+
+    const data = await response.json();
+    console.log("[Authenticate] Parsed API response data object:", JSON.stringify(data, null, 2)); // Log the parsed data object
+
+    if (!response.ok) {
+      // Log the failure reason before returning null
+      console.error(`[Authenticate] API response not OK (${response.status}). Message: ${data?.message || response.statusText}`);
+      return null; // Return null on API failure as expected by authorize
+    }
+
+    // Extract tokens from the response data
+    const accessToken = data.token;
+    const refreshToken = data.refreshToken;
+
+    if (!accessToken || !refreshToken) {
+        // Log the data object when tokens are missing
+        console.error("[Authenticate] Authentication response missing access or refresh token in data:", JSON.stringify(data, null, 2));
+        return null;
+    }
+
+    // Decode user details from the access token
+    // Decode user details from the access token
+    const userDetails = GetUserFromTokenResponse(accessToken);
+
+    // Add the tokens to the user object before returning
+    // If decoding failed, return null
+    if (!userDetails) {
+        console.error("[Authenticate] GetUserFromTokenResponse failed for the received accessToken.");
+        return null;
+    }
+
+    // Construct the final CustomUser object
+    const user: CustomUser = {
+        ...userDetails,
+        accessToken: accessToken, // Add the actual access token
+        refreshToken: refreshToken, // Add the actual refresh token
+    };
+
+    return user;
+
+  } catch (error) {
+    // Log the specific error caught in the try...catch block
+    console.error("[Authenticate] Caught error during authentication request:", error);
+    return null; // Keep returning null for initial auth failure
+  }
+}
+
+
+export async function refreshAccessToken(accessToken:string, refreshToken:string, tenant: string | null){
+  try {
+    const apiUrl = process.env.API_URL || 'http://localhost:5000';
+    // Get tenant from the existing token, fallback to env var or 'root'
+    const tenantId = tenant ?? 'root';
+
+    if (!refreshToken) {
         console.error("No refresh token available for refresh attempt.");
         throw new Error("Missing refresh token");
     }
@@ -124,47 +177,51 @@ export async function refreshAccessToken(token: JWT): Promise<JWT> {
         'tenant': tenantId
       },
       // Ensure the body sends the refreshToken correctly
-      body: JSON.stringify({ refreshToken: token.refreshToken as string })
+      body: JSON.stringify({ token: accessToken,refreshToken: refreshToken})
     });
+    
 
     const refreshedTokens = await response.json();
 
     if (!response.ok) {
-      console.error("Token refresh failed:", refreshedTokens?.message || response.statusText);
-      // Return the original token with an error property
-      return {
-        ...token,
-        error: "RefreshAccessTokenError",
-      };
+      console.error("Token refresh API call failed:", refreshedTokens?.message || response.statusText);
+      // Return an error object instead of throwing or returning null
+      return { error: "RefreshApiError", message: refreshedTokens?.message || response.statusText };
     }
 
-    const newAccessToken = refreshedTokens.token;
-    const newPayload = decodeJwtPayload(newAccessToken);
+    // Extract new tokens from the response
+    const newAccessToken = refreshedTokens.accessToken;
+    const newRefreshToken = refreshedTokens.refreshToken;
 
-    if (!newPayload) {
-      console.error("Failed to decode new access token payload after refresh");
-       // Return the original token with an error property
-       return {
-        ...token,
-        error: "DecodeRefreshedTokenError",
-      };
+    if (!newAccessToken || !newRefreshToken) {
+        console.error("Token refresh response missing access or refresh token");
+        // Return an error object
+        return { error: "RefreshResponseMissingTokensError" };
     }
 
-    // Return the original token merged with new access token details
-    return {
-      ...token, // Keep existing properties (id, email, name, etc.)
-      accessToken: newAccessToken,
-      accessTokenExpires: newPayload.exp ? newPayload.exp * 1000 : Date.now() + (60 * 60 * 1000),
-      // Update refresh token if the backend sent a new one, otherwise keep the old one
-      refreshToken: refreshedTokens.refreshToken ?? token.refreshToken,
-      error: null, // Clear any previous error
+    // Decode user details from the new access token
+    // Decode user details from the new access token
+    const userDetails = GetUserFromTokenResponse(newAccessToken);
+
+    // Add the new tokens to the user object before returning
+    // If decoding failed, return error
+    if (!userDetails) {
+        console.error("Failed to decode new access token during refresh.");
+        return { error: "RefreshDecodeNewTokenError" };
+    }
+
+    // Construct the final CustomUser object for refresh
+    const user: CustomUser = {
+        ...userDetails,
+        accessToken: newAccessToken, // Add the actual new access token
+        refreshToken: newRefreshToken, // Add the actual new refresh token
     };
+
+    return user; // Return the updated user object
+
   } catch (error) {
-    console.error('Error refreshing access token:', error);
-    // Return the original token with an error property
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
+    console.error("Error during token refresh request:", error);
+    // Return an error object on fetch or other unexpected errors
+    return { error: "RefreshFetchError" };
   }
 }
