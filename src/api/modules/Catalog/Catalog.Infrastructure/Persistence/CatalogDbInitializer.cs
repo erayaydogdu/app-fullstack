@@ -19,15 +19,38 @@ internal sealed class CatalogDbInitializer(
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        const string Name = "Keychron V6 QMK Custom Wired Mechanical Keyboard";
-        const string Description = "A full-size layout QMK/VIA custom mechanical keyboard";
-        const decimal Price = 79;
-        const string ImageUrl = "https://www.keychron.co.nl/cdn/shop/products/Keychron-V6-QMK-VIA-custom-mechanical-keyboard-100-percent-layout-hot-swappable-PBT-keycaps-Keychron-K-Pro-switch-red-ISO-German-layout.jpg?v=1707488650&width=500";
-        Guid? BrandId = null;
-        if (await context.Products.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
+        
+        if (await context.Products.AnyAsync().ConfigureAwait(false) is false)
         {
-            var product = Product.Create(Name, Description, Price, BrandId,ImageUrl);
-            await context.Products.AddAsync(product, cancellationToken);
+            var products = new List<Product>();
+            for (var i = 1; i <= 25; i++)
+            {
+                string Name = $"{i} Keychron V6 QMK Custom Wired Mechanical Keyboard";
+                string Description = "A full-size layout QMK/VIA custom mechanical keyboard";
+                decimal Price = 25;
+                Guid? BrandId = null;
+                string ImageUrl = "https://www.keychron.co.nl/cdn/shop/products/Keychron-V6-QMK-VIA-custom-mechanical-keyboard-100-percent-layout-hot-swappable-PBT-keycaps-Keychron-K-Pro-switch-red-ISO-German-layout.jpg?v=1707488650&width=500";
+                products.Add(Product.Create(Name, Description, Price, BrandId,ImageUrl));
+            }
+            
+            //var product = Product.Create(Name, Description, Price, BrandId,ImageUrl);
+            await context.Products.AddRangeAsync(products, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);
+        }
+        
+        
+        if (await context.Brands.AnyAsync().ConfigureAwait(false) is false)
+        {
+            var brands = new List<Brand>();
+            for (var i = 1; i <= 10; i++)
+            {
+                string Name = $"{i} Apple";
+                string Description = "A nice brand";
+                brands.Add(Brand.Create(Name, Description));
+            }
+            
+            await context.Brands.AddRangeAsync(brands, cancellationToken);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);
         }

@@ -148,14 +148,14 @@ export default function ProductForm({
                 name='brand'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Brand</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
                       value={field.value?.id}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder='Select categories' />
+                          <SelectValue placeholder='Select brands' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -180,8 +180,7 @@ export default function ProductForm({
                     <FormLabel>Price</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
-                        step='0.01'
+                        type='money'
                         placeholder='Enter price'
                         {...field}
                       />

@@ -32,7 +32,7 @@ export const navItems: NavItem[] = [
         title: 'Products',
         url: '/dashboard/catalog/products',
         icon: 'product',
-        shortcut: ['m', 'm']
+        shortcut: ['p', 'p']
       },
       {
         title: 'Brands',
@@ -42,14 +42,14 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: [] // No child items
+  // },
   {
     title: 'Account',
     url: '#', // Placeholder as there is no direct link for the parent
@@ -70,14 +70,6 @@ export const navItems: NavItem[] = [
         icon: 'login'
       }
     ]
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: [] // No child items
   }
 ];
 

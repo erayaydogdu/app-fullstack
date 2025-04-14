@@ -6,7 +6,7 @@ export type Product = {
     description: string | null;
     price: number | null;
     imageUrl: string | null;
-    brand: Brand | null;
+    brand: Brand | null | undefined;
 };
 
 export type ProductPagedListing = {
