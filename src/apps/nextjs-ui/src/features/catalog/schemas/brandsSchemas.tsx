@@ -22,12 +22,14 @@ export const updateBrandCommandSchema = z.object({
 });
 
 export const searchBrandsCommandSchema = z.object({
-  pageNumber: z.number().optional(),
-  pageSize: z.number().optional(),
-  orderBy: z.array(z.string()).optional(),
-  keyword: z.string().optional(),
-  advancedSearch: z.object({}).optional(), // Define advancedSearch schema if needed
-  advancedFilter: z.object({}).optional(), // Define advancedFilter schema if needed
+  name: z.string().nullable(),
+  description: z.string().nullable(),
+  pageNumber: z.number(),
+  pageSize: z.number(),
+  orderBy: z.array(z.string()).nullable(),
+  keyword: z.string().nullable(),
+  advancedSearch: z.object({}).nullable(), 
+  advancedFilter: z.object({}).nullable(), 
 });
 
 export const brandResponsePagedListSchema = z.object({

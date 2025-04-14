@@ -6,10 +6,10 @@ export const baseProductResponseSchema = z.object({
   price: z.number().nullable(),
   imageUrl: z.string().nullable(),
   brand: z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    description: z.string(),
-  }).nullable(),
+    id: z.string().nullable(),
+    name: z.string().nullable(),
+    description: z.string().nullable(),
+  }).nullable()
 });
 
 export const createProductCommandSchema = z.object({
@@ -17,12 +17,12 @@ export const createProductCommandSchema = z.object({
 });
 
 export const createProductResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
 });
 
 export const productResponseSchema = z.object({
   ...baseProductResponseSchema.shape,
-  id: z.string().uuid(),
+  id: z.string(),
 });
 
 export const updateProductCommandSchema = z.object({
@@ -34,12 +34,12 @@ export const searchProductsCommandSchema = z.object({
   pageNumber: z.number().optional(),
   pageSize: z.number().optional(),
   orderBy: z.array(z.string()).optional(),
-  keyword: z.string().optional(),
-  advancedSearch: z.object({}).optional(), // Define advancedSearch schema if needed
-  advancedFilter: z.object({}).optional(), // Define advancedFilter schema if needed
-  brandId: z.string().uuid().nullable().optional(),
-  minimumRate: z.number().nullable().optional(),
-  maximumRate: z.number().nullable().optional(),
+  keyword: z.string().nullable().optional(),
+  advancedSearch: z.object({}).nullable(), 
+  advancedFilter: z.object({}).nullable(), 
+  brandId: z.string().nullable(),
+  minimumRate: z.number().nullable(),
+  maximumRate: z.number().nullable(),
 });
 
 export const productResponsePagedListSchema = z.object({

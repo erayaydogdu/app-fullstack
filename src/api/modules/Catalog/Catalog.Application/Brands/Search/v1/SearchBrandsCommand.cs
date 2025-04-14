@@ -6,6 +6,6 @@ namespace FSH.Starter.WebApi.Catalog.Application.Brands.Search.v1;
 
 public class SearchBrandsCommand : PaginationFilter, IRequest<PagedList<BrandResponse>>
 {
-    public string? Name { get; set; }
+    public string? Name { get; set; } = string.Empty;
     public string? Description { get; set; }
 }

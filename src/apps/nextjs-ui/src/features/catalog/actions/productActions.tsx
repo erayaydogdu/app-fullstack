@@ -197,7 +197,7 @@ export async function createProduct(
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
-  
+  const bearerToken = await getAccessToken();
     // Validate the input data
     const result = searchProductsCommandSchema.safeParse(data);
     if (!result.success) {
@@ -209,7 +209,7 @@ export async function createProduct(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${await getAccessToken()}`,
+          "Authorization": `Bearer ${bearerToken}`,
         },
         body: JSON.stringify(result.data),
       });
@@ -220,7 +220,7 @@ export async function createProduct(
       }
   
       const responseData = await response.json();
-  
+      console.log("[SearchProduct] Response data:", responseData);
       // Validate the response data
       const parsedResponse = productResponsePagedListSchema.safeParse(responseData);
       if (!parsedResponse.success) {

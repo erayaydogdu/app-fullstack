@@ -13,7 +13,7 @@ public sealed class SearchBrandsHandler(
     public async Task<PagedList<BrandResponse>> Handle(SearchBrandsCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-
+        
         var spec = new SearchBrandSpecs(request);
 
         var items = await repository.ListAsync(spec, cancellationToken).ConfigureAwait(false);

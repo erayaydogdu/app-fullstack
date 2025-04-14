@@ -8,16 +8,18 @@ import { searchBrandsCommandSchema } from '../schemas/brandsSchemas';
 export default async function BrandListingPage() {
   // Showcasing the use of search params cache in nested RSCs
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name');
+  const search = searchParamsCache.get('brandKeyword');
   const pageLimit = searchParamsCache.get('perPage');
 
   const filters = searchBrandsCommandSchema.parse({
-    pageNumber: page ? Number(page) : undefined,
-    pageSize: pageLimit ? Number(pageLimit) : undefined,
-    keyword: search || undefined,
-    orderBy: [],
-    advancedSearch: {},
-    advancedFilter: {}
+    name: "",
+    description: "",
+    pageNumber: page ? Number(page) : 1,
+    pageSize: pageLimit ? Number(pageLimit) : 10,
+    keyword: search || null,
+    orderBy: ["id desc"],
+    advancedSearch: null,
+    advancedFilter: null
   });
 
   const data = await searchBrands(filters);

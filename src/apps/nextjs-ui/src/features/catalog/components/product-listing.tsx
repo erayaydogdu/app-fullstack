@@ -7,16 +7,20 @@ import { searchProductsCommandSchema } from '../schemas/productSchemas';
 
 export default async function ProductListingPage() {
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name');
+  const search = searchParamsCache.get('productKeyword');
   const pageLimit = searchParamsCache.get('perPage');
+  const brandId = searchParamsCache.get('brandId');
 
   const filters = searchProductsCommandSchema.parse({
-    pageNumber: page ? Number(page) : undefined,
-    pageSize: pageLimit ? Number(pageLimit) : undefined,
-    keyword: search || undefined,
-    orderBy: [] as string[], 
-    advancedSearch: {}, 
-    advancedFilter: {}
+    pageNumber: page ? Number(page) : 1,
+    pageSize: pageLimit ? Number(pageLimit) : 10,
+    keyword: search || null,
+    orderBy: ["id desc"] as string[], 
+    advancedSearch: null, 
+    advancedFilter: null,
+    brandId: brandId ? String(brandId) : null,
+    minimumRate: null,
+    maximumRate: null
   });
 
   const data = await searchProducts(filters);
@@ -27,8 +31,12 @@ export default async function ProductListingPage() {
     name: product.name,
     description: product.description,
     price: product.price ?? 0,
-    imageUrl: product.imageUrl ?? '',
-    brand: product.brand ?? null
+    imageUrl: product.imageUrl,
+    brand: {
+      id: product.brand?.id,
+      name: product.brand?.name,
+      description: product.brand?.description
+    }
   }));
 
   return (
