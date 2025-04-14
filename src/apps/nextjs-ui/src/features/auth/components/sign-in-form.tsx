@@ -85,7 +85,7 @@ export function SignInForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Apple (Not implemented)
+                  Login with Apple
                 </Button>
                 <Button type="button" variant="outline" className="w-full" disabled>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
@@ -94,7 +94,7 @@ export function SignInForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Google (Not implemented)
+                  Login with Google
                 </Button>
                 <Button type="button" variant="outline" className="w-full" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
@@ -103,7 +103,7 @@ export function SignInForm({
                             fill="currentColor"
                         />
                     </svg>
-                    Login with Github (Not implemented)
+                    Login with Github
                 </Button>
               </div>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
