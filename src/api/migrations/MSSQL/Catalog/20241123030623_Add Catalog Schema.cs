@@ -46,6 +46,7 @@ namespace FSH.Starter.WebApi.Migrations.MSSQL.Catalog
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TenantId = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Created = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LastModified = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
