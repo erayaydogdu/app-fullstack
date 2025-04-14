@@ -31,13 +31,12 @@ export function UserNav() {
       >
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
-            {/* <p className='text-sm leading-none font-medium'>
-              {user.fullName}
+            <p className='text-sm leading-none font-medium'>
+              {session?.user?.name}
             </p>
             <p className='text-muted-foreground text-xs leading-none'>
-              {user.emailAddresses[0].emailAddress}
-            </p> */}
-            {session?.user?.email}
+              {session?.user?.email}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -50,7 +49,7 @@ export function UserNav() {
           <DropdownMenuItem>New Team</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ redirect: true, callbackUrl: '/auth/sign-in' })}>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>

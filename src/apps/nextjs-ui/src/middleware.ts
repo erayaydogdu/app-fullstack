@@ -10,7 +10,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        return true
+        return !!token
       },
     },
   }

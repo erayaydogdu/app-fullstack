@@ -23,7 +23,6 @@ public static class SelfRegisterUserEndpoint
         })
         .WithName(nameof(SelfRegisterUserEndpoint))
         .WithSummary("self register user")
-        .RequirePermission("Permissions.Users.Create")
         .WithDescription("self register user")
         .AllowAnonymous();
     }

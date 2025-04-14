@@ -30,7 +30,7 @@ import {
   IconUserX,
   IconX,
   IconLayoutKanban,
-  IconBrandGithub
+  IconBrandGithub,
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
