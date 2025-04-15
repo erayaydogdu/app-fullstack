@@ -11,20 +11,21 @@ export async function selfRegisterUser(
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
-  
+    
     try {
       console.log('Attempting to fetch:', `${apiUrl}/api/users/self-register`);
       const response = await fetch(`${apiUrl}/api/users/self-register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          tenant: tenant,
+          tenant: tenant
         },
         body: JSON.stringify(data),
       });
   
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('[SelfRegister] Error response:', errorData);
         throw new Error(errorData.message || "Failed to self register user");
       }
   

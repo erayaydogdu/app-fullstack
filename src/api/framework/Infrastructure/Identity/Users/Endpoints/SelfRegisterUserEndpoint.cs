@@ -19,6 +19,8 @@ public static class SelfRegisterUserEndpoint
             CancellationToken cancellationToken) =>
         {
             var origin = $"{context.Request.Scheme}://{context.Request.Host.Value}{context.Request.PathBase.Value}";
+            // if (string.IsNullOrEmpty(origin)) origin = "/";
+            // request.Origin = origin;
             return service.RegisterAsync(request, origin, cancellationToken);
         })
         .WithName(nameof(SelfRegisterUserEndpoint))

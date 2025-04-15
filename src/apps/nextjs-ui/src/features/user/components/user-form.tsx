@@ -19,24 +19,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { registerUserCommandSchema } from '@/features/user/schemas/usersSchemas'; // Using register schema for now
-import { registerUser } from '@/features/user/actions/usersActions'; // Import the action
+import { registerUserCommandSchema, userDetailSchema } from '@/features/user/schemas/usersSchemas';
+import { registerUser, updateUser } from '@/features/user/actions/usersActions';
 
 type UserFormValues = z.infer<typeof registerUserCommandSchema>;
 
-// TODO: Add props for initialData to handle editing
 interface UserFormProps {
-  initialData?: UserFormValues | null; // Make optional for creation
+  initialData?: z.infer<typeof userDetailSchema> | null;
+  mode: 'create' | 'update';
 }
 
-export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
+export const UserForm: React.FC<UserFormProps> = ({ initialData, mode }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const title = initialData ? 'Edit user' : 'Create user';
-  const description = initialData ? 'Edit an existing user.' : 'Add a new user.';
-  const toastMessage = initialData ? 'User updated.' : 'User created.';
-  const action = initialData ? 'Save changes' : 'Create';
+  const title = mode === 'update' ? 'Edit user' : 'Create user';
+  const description = mode === 'update' ? 'Edit an existing user.' : 'Add a new user.';
+  const toastMessage = mode === 'update' ? 'User updated.' : 'User created.';
+  const action = mode === 'update' ? 'Save changes' : 'Create';
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(registerUserCommandSchema),
@@ -45,8 +45,8 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
       firstName: '',
       lastName: '',
       email: '',
-      password: '', // Required for registration
-      confirmPassword: '', // Required for registration
+      password: '',
+      confirmPassword: '',
       phoneNumber: '',
     },
   });
@@ -54,15 +54,14 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
   const onSubmit = async (data: UserFormValues) => {
     try {
       setLoading(true);
-      if (initialData) {
-        // TODO: Implement update logic using updateUser action
-        // await updateUser({ ...data, id: initialData.id }); // Assuming updateUser exists and takes id
-        toast.info('Update functionality not yet implemented.'); // Placeholder
+      if (mode === 'update' && initialData) {
+        await updateUser({ ...data, id: initialData.id });
+        toast.success(toastMessage);
       } else {
         await registerUser(data);
         toast.success(toastMessage);
-        router.push('/dashboard/users'); // Redirect after creation
-        router.refresh(); // Refresh server components
+        router.push('/dashboard/users');
+        router.refresh();
       }
     } catch (error: any) {
       toast.error(`Something went wrong: ${error.message}`);
@@ -75,12 +74,10 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
     <>
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {/* TODO: Add delete button for edit mode */}
       </div>
       <Separator className="my-4" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Basic Fields - Add more as needed based on schema */}
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             <FormField
               control={form.control}

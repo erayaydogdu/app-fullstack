@@ -32,20 +32,18 @@ export function SignUpForm({
     try {
       const result = await selfRegisterUser(
         {
-          firstName: null,
-          lastName: null,
+          firstName: "",
+          lastName: "",
           email: email,
           userName: email,
           password: password,
           confirmPassword: confirmPassword,
-          phoneNumber: null
+          phoneNumber: ""
         },
         organisation
       );
 
       if (result) {
-        // Sign-up was successful
-        // Redirect the user to the sign-in page
         // Optionally, you could automatically sign them in here using:
         //await signIn('credentials', { email, password, organisation ,redirect: false });
         router.push('/dashboard'); // Or wherever you want them to go after sign-up/sign-in

@@ -128,7 +128,7 @@ internal sealed partial class UserService(
             PhoneNumberConfirmed = false,
         };
 
-        // register user
+
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {

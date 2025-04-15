@@ -18,10 +18,6 @@ async function EditRoleFormLoader({ roleId }: { roleId: string }) {
     notFound(); // Show 404 if role doesn't exist
   }
 
-  // TODO: Adapt the fetched role data structure if it doesn't match RoleFormValues exactly
-  // For now, assuming it matches or can be partially used.
-  // The RoleForm currently expects createOrUpdateRoleCommandSchema structure.
-  // We might need to adjust RoleForm or use updateRoleCommandSchema later.
   const initialData = {
     name: role.name,
     description: role.description,

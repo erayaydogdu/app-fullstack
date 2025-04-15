@@ -93,7 +93,7 @@ export async function updateUser(
   }
 }
 
-export async function getUser() {
+export async function getProfile() {
   const bearerToken = await getAccessToken();
   if (!apiUrl) {
     throw new Error("BACKEND_URL environment variable is not defined");
