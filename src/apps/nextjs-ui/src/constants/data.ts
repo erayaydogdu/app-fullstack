@@ -59,15 +59,27 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Profile',
-        url: '/dashboard/profile',
+        url: '/dashboard/users/profile',
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
       {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
+        title: 'Users',
+        url: '/dashboard/users',
+        icon: 'userPen',
+        shortcut: ['m', 'm'],
+      },
+      {
+        title: 'Tenants',
+        url: '/dashboard/users/tenant',
+        icon: 'userPen',
+        shortcut: ['m', 'm'],
+      },
+      {
+        title: 'Roles',
+        url: '/dashboard/users/role',
+        icon: 'userPen',
+        shortcut: ['m', 'm'],
       }
     ]
   }

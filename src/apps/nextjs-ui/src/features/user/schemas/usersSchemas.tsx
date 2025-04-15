@@ -36,6 +36,8 @@ export const userDetailSchema = z.object({
   imageUrl: z.string().nullable(),
 });
 
+export type ProfileFormValues = z.infer<typeof userDetailSchema>;
+
 export const forgotPasswordCommandSchema = z.object({
   email: z.string().nullable(),
 });
