@@ -8,10 +8,13 @@ import { createProductCommandSchema, createProductResponseSchema,
     productResponsePagedListSchema
  } from "../schemas/productSchemas";
 
+
+ const apiUrl = process.env.API_URL;
+
 export async function createProduct(
     data: z.infer<typeof createProductCommandSchema>
   ) {
-    const apiUrl = process.env.API_URL;
+    
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
@@ -21,13 +24,13 @@ export async function createProduct(
     if (!result.success) {
       throw new Error(result.error.errors[0].message);
     }
-  
+    const bearerToken = await getAccessToken();
     try {
       const response = await fetch(`${apiUrl}/api/v1/catalog/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${await getAccessToken()}`,
+          "Authorization": `Bearer ${bearerToken}`,
         },
         body: JSON.stringify(result.data),
       });
@@ -61,17 +64,17 @@ export async function createProduct(
   }
   
   export async function getProduct(id: string) {
-    const apiUrl = process.env.API_URL;
+    
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
-  
+    const bearerToken = await getAccessToken();
     try {
       const response = await fetch(`${apiUrl}/api/v1/catalog/products/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${await getAccessToken()}`,
+          "Authorization": `Bearer ${bearerToken}`,
         },
       });
   
@@ -107,7 +110,7 @@ export async function createProduct(
     id: string,
     data: Omit<z.infer<typeof updateProductCommandSchema>, 'id'>
   ) {
-    const apiUrl = process.env.API_URL;
+    
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
@@ -116,13 +119,13 @@ export async function createProduct(
     if (!result.success) {
       throw new Error(result.error.errors[0].message);
     }
-  
+    const bearerToken = await getAccessToken();
     try {
       const response = await fetch(`${apiUrl}/api/v1/catalog/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${await getAccessToken()}`,
+          "Authorization": `Bearer ${bearerToken}`,
         },
         body: JSON.stringify(result.data),
       });
@@ -135,7 +138,7 @@ export async function createProduct(
       const responseData = await response.json();
   
       // Validate the response data
-      const parsedResponse = createProductResponseSchema.safeParse(responseData); // Assuming the response is the same as createProduct
+      const parsedResponse = createProductResponseSchema.safeParse(responseData); 
       if (!parsedResponse.success) {
         throw new Error(parsedResponse.error.errors[0].message);
       }
@@ -156,16 +159,16 @@ export async function createProduct(
   }
   
   export async function deleteProduct(id: string) {
-    const apiUrl = process.env.API_URL;
+    
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
-  
+    const bearerToken = await getAccessToken();
     try {
       const response = await fetch(`${apiUrl}/api/v1/catalog/products/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${await getAccessToken()}`,
+          "Authorization": `Bearer ${bearerToken}`,
         },
       });
   
@@ -192,7 +195,7 @@ export async function createProduct(
   export async function searchProducts(
     data: z.infer<typeof searchProductsCommandSchema>
   ) {
-    const apiUrl = process.env.API_URL;
+    
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
