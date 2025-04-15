@@ -105,15 +105,14 @@ export async function createProduct(
   
   export async function updateProduct(
     id: string,
-    data: z.infer<typeof updateProductCommandSchema>
+    data: Omit<z.infer<typeof updateProductCommandSchema>, 'id'>
   ) {
     const apiUrl = process.env.API_URL;
     if (!apiUrl) {
       throw new Error("API_URL environment variable is not defined");
     }
   
-    // Validate the input data
-    const result = updateProductCommandSchema.safeParse({ ...data, id });
+    const result = updateProductCommandSchema.safeParse(data);
     if (!result.success) {
       throw new Error(result.error.errors[0].message);
     }

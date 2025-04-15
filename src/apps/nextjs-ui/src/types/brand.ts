@@ -1,6 +1,6 @@
 export type Brand = {
-    id: string;
-    name: string;
+    id: string | null;
+    name: string | null;
     description: string | null;
   };
 

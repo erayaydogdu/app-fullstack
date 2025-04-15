@@ -48,9 +48,8 @@ export default function BrandForm({
   });
 
   async function onSubmit(values: z.infer<typeof schema>) {
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return; 
     
-    console.log('Form submission started:', { mode, values });
     try {
       setIsSubmitting(true);
       setError(null);
@@ -71,7 +70,7 @@ export default function BrandForm({
         });
       }
       
-      console.log('Form submission successful');
+      
       router.refresh();
       router.push('/dashboard/catalog/brands');
     } catch (error) {

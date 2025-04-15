@@ -15,7 +15,7 @@ export default async function ProductViewPage({
 
   if (productId && productId !== 'create') {
       try {
-        const product = await getProduct(productId);
+        product = await getProduct(productId);
         if (!product) {
           notFound();
         }

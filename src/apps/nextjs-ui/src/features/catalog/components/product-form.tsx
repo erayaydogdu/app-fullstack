@@ -25,6 +25,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { createProductCommandSchema,updateProductCommandSchema } from '../schemas/productSchemas';
+import { useRouter } from 'next/navigation';
+import { createProduct, updateProduct } from '../actions/productActions';
+import { useState } from 'react';
 
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -43,16 +46,22 @@ export default function ProductForm({
   pageTitle: string;
   mode?: 'create' | 'update';
 }) {
+  console.log('initialData:', initialData);
+
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const defaultValues = {
+    id: initialData?.id || '',
     name: initialData?.name || '',
     description: initialData?.description || '',
     price: initialData?.price || 0,
     imageUrl: initialData?.imageUrl || '',
     brand: initialData?.brand ? {
-      id: initialData.brand.id,
-      name: initialData.brand.name,
-      description: initialData.brand.description
+      id: initialData.brand?.id || '',
+      name: initialData.brand?.name || '',
+      description: initialData.brand?.description || ''
     } : undefined
   };
 
@@ -63,14 +72,43 @@ export default function ProductForm({
     defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof schema>) {
-    if (mode === 'create') {
-      // Handle create logic
-      console.log('Creating product:', values);
-    } else {
-      // Handle update logic
-      console.log('Updating product:', values);
-    }
+  async function onSubmit(values: z.infer<typeof schema>) {
+    if (isSubmitting) return;
+
+    try {
+          setIsSubmitting(true);
+          setError(null);
+    
+          if (mode === 'create') {
+            await createProduct(values);
+          } 
+          else
+          {
+            if (!initialData?.id) {
+              throw new Error('Product ID is missing');
+            }
+            console.log('Updating product:', { id: initialData.id, values });
+            await updateProduct(initialData.id, {
+              name: values.name,
+              description: values.description,
+              price: values.price,
+              imageUrl: values.imageUrl,
+              brand: values.brand ? {
+                id: values.brand.id,
+                name: values.brand.name,
+                description: values.brand.description
+              } : null
+            });
+          }
+          
+          router.refresh();
+          router.push('/dashboard/catalog/products');
+        } catch (error) {
+          console.error('Form submission error:', error);
+          setError(error instanceof Error ? error.message : 'Failed to save product');
+        } finally {
+          setIsSubmitting(false);
+        }
   }
 
   return (
@@ -83,6 +121,11 @@ export default function ProductForm({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+          {error && (
+              <div className="text-sm text-red-500 dark:text-red-400">
+                {error}
+              </div>
+            )}
             {/* <FormField
               control={form.control}
               name='imageUrl'
@@ -124,7 +167,7 @@ export default function ProductForm({
                   <FormItem>
                     <FormLabel>Product Image URL</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter product image url' {...field} />
+                      <Input placeholder='Enter product image url' value={field.value || ''} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -137,7 +180,7 @@ export default function ProductForm({
                   <FormItem>
                     <FormLabel>Product Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter product name' {...field} />
+                      <Input placeholder='Enter product name' value={field.value || ''} onChange={field.onChange}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,7 +194,7 @@ export default function ProductForm({
                     <FormLabel>Brand</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
-                      value={field.value?.id}
+                      value={field.value?.id || ''}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -180,9 +223,10 @@ export default function ProductForm({
                     <FormLabel>Price</FormLabel>
                     <FormControl>
                       <Input
-                        type='money'
+                        type='number'
                         placeholder='Enter price'
-                        {...field}
+                        value={field.value === 0 ? '' : field.value || ''}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -200,7 +244,8 @@ export default function ProductForm({
                     <Textarea
                       placeholder='Enter product description'
                       className='resize-none'
-                      {...field}
+                      value={field.value || ''}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />
@@ -208,7 +253,7 @@ export default function ProductForm({
               )}
             />
             <Button type='submit'>
-              {mode === 'create' ? 'Create Product' : 'Update Product'}
+            {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Product' : 'Update Product'}
             </Button>
           </form>
         </Form>
