@@ -1,9 +1,6 @@
-// src/app/api/auth/[...nextauth]/route.ts
-import NextAuth, { AuthOptions, User, Account, Profile } from "next-auth"; // Import User, Account, and Profile types
+import NextAuth, { AuthOptions, User, Account } from "next-auth";
 import { JWT } from "next-auth/jwt"; // Import JWT type
 import CredentialsProvider from "next-auth/providers/credentials";
-// Import functions and type from the updated lib/auth.ts
-// Import functions and types from the updated lib/auth.ts
 import { authenticate, CustomUser, refreshAccessToken, RefreshTokenError } from "@/lib/auth";
 
 
@@ -17,17 +14,14 @@ export const authOptions: AuthOptions = {
         tenant : { label: "Tenant", type: "text" }
       },
       async authorize(credentials): Promise<CustomUser | null> {
-        // Basic validation
         if (!credentials?.email || !credentials?.password) {
           console.error("Authorize callback: Missing email or password");
           return null;
         }
 
         const tenant = credentials.tenant || process.env.DEFAULT_TENANT || 'root';
-        console.log(`[Authorize] Attempting authorization for email: ${credentials.email}, tenant: ${tenant}`);
-        console.log("[Authorize] Received credentials:", JSON.stringify(credentials, null, 2)); // Log received credentials
+
         const user = await authenticate(credentials.email, credentials.password, tenant);
-        console.log("[Authorize] Result from authenticate:", JSON.stringify(user, null, 2)); // Log the result from authenticate
 
         if (user) {
           console.log(`Authorization successful for email: ${credentials.email}`);
@@ -52,13 +46,7 @@ export const authOptions: AuthOptions = {
     }): Promise<JWT> {
       
       if (user && account) {
-        console.log("[JWT Callback] Initial sign-in detected.");
-        console.log("[JWT Callback] Received user object:", JSON.stringify(user, null, 2));
-        console.log("[JWT Callback] Received account object:", JSON.stringify(account, null, 2));
-        // Ensure we are dealing with our CustomUser from authorize
         const customUser = user as CustomUser;
-        // Log the customUser object to verify casting and content
-        console.log("[JWT Callback] Casted customUser object:", JSON.stringify(customUser, null, 2));
         // Construct the token object to be returned
         const tokenToReturn: JWT = {
           ...token, // Include existing token properties (like iat, exp if needed)
@@ -73,19 +61,17 @@ export const authOptions: AuthOptions = {
           imageUrl: customUser.imageUrl,
           error: null, // Clear any potential previous errors
         };
-        console.log("[JWT Callback] Returning token for initial sign-in:", JSON.stringify(tokenToReturn, null, 2));
         return tokenToReturn; // Return the constructed token
       }
 
       // Check if the access token is still valid
       if (token.accessTokenExpires && Date.now() < (token.accessTokenExpires as number)) {
         console.log("[JWT Callback] Access token is still valid.");
-        return token; // Return the existing token
+        return token; 
       }
 
       if (!token.refreshToken) {
           console.error("JWT Callback: Attempted to refresh token, but no refresh token found.");
-          // Mark the token with an error and return it. The session callback can handle this.
           return { ...token, error: "MissingRefreshTokenError" };
       }
 
@@ -102,17 +88,17 @@ export const authOptions: AuthOptions = {
 
         return {
           ...token,
-          error: refreshToken.error // e.g., "RefreshApiError", "RefreshDecodeNewTokenError"
+          error: refreshToken.error 
         };
       }
 
-      // Check if the result is null (unexpected based on lib/auth.ts changes, but handle defensively)
+      
       if (!refreshToken) {
           console.error("JWT Callback: Token refresh returned null or undefined unexpectedly.");
           return { ...token, error: "RefreshUnexpectedNullError" };
       }
 
-      // If we reach here, refreshResult is a valid CustomUser
+     
       console.log("JWT Callback: Token successfully refreshed.");
       const refreshedUser = refreshToken as CustomUser; // Type assertion for clarity
 
@@ -128,7 +114,7 @@ export const authOptions: AuthOptions = {
         fullName: refreshedUser.fullName,
         tenant: refreshedUser.tenant,
         imageUrl: refreshedUser.imageUrl,
-        error: null, // Clear any previous error
+        error: null, 
       };
     },
 
@@ -144,9 +130,8 @@ export const authOptions: AuthOptions = {
       };
       // Also pass the access token and any error flags to the session
       session.user.accessToken = token.accessToken;
-      session.error = token.error; // Propagate error state (e.g., "RefreshAccessTokenError")
+      session.error = token.error; 
 
-      // console.log("Session Callback - Output session:", session);
       return session; // The session object is returned to the client
     },
   },

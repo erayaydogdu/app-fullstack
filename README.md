@@ -1,6 +1,6 @@
 # The App 🚀
 
-> With ASP.NET Core Web API & Blazor Client & NextJs UI
+> With ASP.NET Core Web API & NextJs UI Dashboard
 
  `.NET 9 Clean Architecture` Solution that incorporates the most essential packages and features your projects will ever need including out-of-the-box Multi-Tenancy support. 
 
@@ -10,7 +10,6 @@
 
 - .NET 9
 - Entity Framework Core 9
-- Blazor
 - NextJs
 - MediatR
 - PostgreSQL
